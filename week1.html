@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="第一周 PopPK 学习资料：概念框架、核心参数、NLME 分层、建模流程与交互动画解释。">
+  <title>第一周 PopPK 学习资料</title>
+  <link rel="stylesheet" href="assets/week1.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./week1.html" aria-label="第一周学习资料首页">
+      <span class="brand-mark">PK</span>
+      <span>
+        <strong>第一周 PopPK 学习资料</strong>
+        <small>从概念地图到建模流程</small>
+      </span>
+    </a>
+    <nav class="topnav" aria-label="章节导航">
+      <a href="#map">总览</a>
+      <a href="#dayplan">日程</a>
+      <a href="#layers">分层模型</a>
+      <a href="#parameters">核心参数</a>
+      <a href="#workflow">流程</a>
+      <a href="#quiz">小测</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="study-shell" id="map">
+      <div class="study-copy">
+        <p class="eyebrow">Week 1 / 建立全局框架</p>
+        <h1>先把 PopPK 看成一台“解释差异”的机器</h1>
+        <p class="lead">
+          第一周不急着钻公式。目标是看懂三个问题：群体平均水平是什么，个体为什么不同，观测值为什么会抖动。
+          当这三层分清楚，后面的模型辨识、协变量筛选、诊断图都会变得顺手很多。
+        </p>
+        <div class="week-grid" aria-label="第一周五天学习安排">
+          <article>
+            <span>Day 1</span>
+            <strong>全书地图</strong>
+            <p>浏览目录、第一章和知识图谱，建立“建模流程”的骨架。</p>
+          </article>
+          <article>
+            <span>Day 2</span>
+            <strong>三层误差</strong>
+            <p>区分固定效应、个体随机效应、残差误差。</p>
+          </article>
+          <article>
+            <span>Day 3</span>
+            <strong>核心参数</strong>
+            <p>理解 CL、V、Ka、ETA、EPS 与浓度曲线的关系。</p>
+          </article>
+          <article>
+            <span>Day 4</span>
+            <strong>诊断直觉</strong>
+            <p>认识 GOF、VPC、OFV、协变量图各自回答的问题。</p>
+          </article>
+          <article>
+            <span>Day 5</span>
+            <strong>复盘输出</strong>
+            <p>完成术语表、流程图和 3 个尚未解决的问题。</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="motion-board" aria-label="PopPK 三层结构动画">
+        <div class="board-header">
+          <span>NLME 三层结构</span>
+          <output id="layerStatus">群体典型值正在生成个体曲线</output>
+        </div>
+        <div class="layer-stage">
+          <div class="theta-node">
+            <span>THETA</span>
+            <strong>群体典型值</strong>
+          </div>
+          <div class="eta-field" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <svg class="curve-fan" viewBox="0 0 520 260" role="img" aria-label="群体曲线、个体曲线和观测点动画">
+            <path class="curve curve-pop" d="M34 212 C90 70, 160 42, 250 82 C340 122, 410 176, 490 202"></path>
+            <path class="curve curve-ind a" d="M34 214 C86 88, 166 58, 252 98 C342 138, 416 182, 490 207"></path>
+            <path class="curve curve-ind b" d="M34 208 C98 56, 164 35, 248 68 C330 102, 400 164, 490 196"></path>
+            <path class="curve curve-ind c" d="M34 218 C76 110, 158 84, 250 116 C348 150, 420 190, 490 211"></path>
+            <g class="observations">
+              <circle cx="80" cy="112" r="5"></circle>
+              <circle cx="132" cy="66" r="5"></circle>
+              <circle cx="188" cy="69" r="5"></circle>
+              <circle cx="246" cy="86" r="5"></circle>
+              <circle cx="306" cy="126" r="5"></circle>
+              <circle cx="378" cy="164" r="5"></circle>
+              <circle cx="452" cy="196" r="5"></circle>
+            </g>
+          </svg>
+        </div>
+        <div class="legend-row">
+          <span><i class="pop"></i>群体曲线</span>
+          <span><i class="ind"></i>个体曲线</span>
+          <span><i class="obs"></i>观测误差</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band" id="dayplan">
+      <div class="section-heading">
+        <p class="eyebrow">Daily route</p>
+        <h2>第一周精读路线</h2>
+        <p>每天都按“先看图、再读文、最后输出”的节奏走。不要把时间全花在公式上，先把问题意识立起来。</p>
+      </div>
+
+      <div class="daily-matrix">
+        <article>
+          <span>Day 1</span>
+          <h3>建立地图：这本书到底在解决什么？</h3>
+          <ul>
+            <li>读前言、目录、第一章标题层级。</li>
+            <li>打开知识图谱，只看大节点之间的关系。</li>
+            <li>写下 5 个你认为建模必须回答的问题。</li>
+          </ul>
+          <strong>输出：一张“数据到决策”的流程草图。</strong>
+        </article>
+        <article>
+          <span>Day 2</span>
+          <h3>分清三层：群体、个体、观测</h3>
+          <ul>
+            <li>精读固定效应、随机效应、残差误差。</li>
+            <li>把 THETA、ETA、EPS 各举一个临床例子。</li>
+            <li>理解为什么 PopPK 不是简单平均每个人曲线。</li>
+          </ul>
+          <strong>输出：三层结构解释卡。</strong>
+        </article>
+        <article>
+          <span>Day 3</span>
+          <h3>看懂曲线：CL、V、Ka 如何改形状</h3>
+          <ul>
+            <li>用参数沙盘拖动 CL、V、Ka。</li>
+            <li>记录峰浓度、达峰时间、消除斜率怎么变。</li>
+            <li>把“曲线形状”翻译成“参数变化”。</li>
+          </ul>
+          <strong>输出：核心参数对曲线影响表。</strong>
+        </article>
+        <article>
+          <span>Day 4</span>
+          <h3>诊断直觉：模型哪里不对？</h3>
+          <ul>
+            <li>先分清 PRED、IPRED、DV 的关系。</li>
+            <li>理解 GOF、VPC、OFV 分别回答什么。</li>
+            <li>识别系统偏差、随机散布和模型过度自信。</li>
+          </ul>
+          <strong>输出：诊断图用途清单。</strong>
+        </article>
+        <article>
+          <span>Day 5</span>
+          <h3>复盘：把第一周变成自己的语言</h3>
+          <ul>
+            <li>不用原文，重写 PopPK 的定义。</li>
+            <li>整理 12 个术语，给每个术语配一句解释。</li>
+            <li>列出 3 个还模糊的问题，作为第二周入口。</li>
+          </ul>
+          <strong>输出：一页复盘笔记。</strong>
+        </article>
+      </div>
+
+      <div class="concept-river" aria-label="第一周学习路径动画">
+        <span>原始数据</span>
+        <i></i>
+        <span>结构模型</span>
+        <i></i>
+        <span>个体差异</span>
+        <i></i>
+        <span>诊断验证</span>
+        <i></i>
+        <span>剂量决策</span>
+      </div>
+    </section>
+
+    <section class="content-band" id="layers">
+      <div class="section-heading">
+        <p class="eyebrow">Core idea 01</p>
+        <h2>PopPK 的三层语言</h2>
+        <p>同一个浓度点背后，至少有三类来源。第一周的核心任务就是把它们分开。</p>
+      </div>
+
+      <div class="layer-explainer">
+        <article class="layer-card theta">
+          <span class="tag">固定效应</span>
+          <h3>THETA：群体的平均骨架</h3>
+          <p>例如典型清除率 TVCL、典型分布容积 TVV。它回答“这个群体大体是什么水平”。</p>
+          <code>TVCL = THETA(1)</code>
+        </article>
+        <article class="layer-card eta">
+          <span class="tag">个体随机效应</span>
+          <h3>ETA：每个人偏离多少</h3>
+          <p>同样剂量下，有人清除快，有人清除慢。ETA 描述这种个体偏离。</p>
+          <code>CLi = TVCL * EXP(ETA_CL)</code>
+        </article>
+        <article class="layer-card eps">
+          <span class="tag">残差误差</span>
+          <h3>EPS：观测值为什么抖</h3>
+          <p>采血、测定、模型遗漏都会让观测值围绕预测值上下波动。</p>
+          <code>DV = IPRED + EPS</code>
+        </article>
+      </div>
+
+      <div class="simulator-grid">
+        <section class="plot-panel">
+          <div class="panel-title">
+            <h3>参数沙盘：拖动后观察曲线变化</h3>
+            <span id="curveReadout">CL 3.5 L/h · V 30 L · Ka 1.1 h-1</span>
+          </div>
+          <canvas id="pkCanvas" width="900" height="520" aria-label="口服一室模型浓度曲线动画"></canvas>
+        </section>
+        <section class="controls-panel" aria-label="参数控制">
+          <label>
+            <span>清除率 CL</span>
+            <input id="clRange" type="range" min="1.0" max="7.0" step="0.1" value="3.5">
+            <small>CL 越大，药物从体内消失越快，曲线下降越陡。</small>
+          </label>
+          <label>
+            <span>分布容积 V</span>
+            <input id="vRange" type="range" min="10" max="70" step="1" value="30">
+            <small>V 越大，同样剂量被“摊开”得越稀，峰浓度更低。</small>
+          </label>
+          <label>
+            <span>吸收速率 Ka</span>
+            <input id="kaRange" type="range" min="0.2" max="2.5" step="0.1" value="1.1">
+            <small>Ka 越大，达峰更早；太慢时曲线会被拉宽。</small>
+          </label>
+        </section>
+      </div>
+
+      <div class="patient-sim-grid">
+        <section class="plot-panel">
+          <div class="panel-title">
+            <h3>群体模拟：同一个给药方案，为什么每个人曲线不同？</h3>
+            <span id="patientReadout">24 名虚拟受试者 · ETA 正在改变 CL 和 V</span>
+          </div>
+          <canvas id="populationCanvas" width="900" height="430" aria-label="虚拟受试者浓度曲线群体动画"></canvas>
+        </section>
+        <section class="story-panel">
+          <h3>读图顺序</h3>
+          <ol>
+            <li>先看金色粗线：这是群体典型曲线。</li>
+            <li>再看青色细线：每条线代表一个个体。</li>
+            <li>最后看红色点：观测值还会叠加残差误差。</li>
+          </ol>
+          <p>这张图对应第一周最重要的直觉：PopPK 不是为了抹平差异，而是把差异拆成可以解释、可以模拟、可以用于决策的部分。</p>
+        </section>
+      </div>
+    </section>
+
+    <section class="content-band compact" id="parameters">
+      <div class="section-heading">
+        <p class="eyebrow">Core idea 02</p>
+        <h2>第一周必须熟悉的术语</h2>
+      </div>
+      <div class="term-grid">
+        <article><strong>CL</strong><span>清除率，决定下降速度</span></article>
+        <article><strong>V</strong><span>分布容积，影响浓度尺度</span></article>
+        <article><strong>Ka</strong><span>吸收速率，影响达峰时间</span></article>
+        <article><strong>ETA</strong><span>个体随机效应，解释人和人的差异</span></article>
+        <article><strong>EPS</strong><span>残差误差，解释观测值的噪声</span></article>
+        <article><strong>OFV</strong><span>目标函数值，用于比较模型拟合优劣</span></article>
+        <article><strong>GOF</strong><span>拟合优度图，用于找系统偏差</span></article>
+        <article><strong>VPC</strong><span>视觉预测检验，用于看模型能否复现数据分布</span></article>
+      </div>
+    </section>
+
+    <section class="content-band" id="workflow">
+      <div class="section-heading">
+        <p class="eyebrow">Core idea 03</p>
+        <h2>把建模流程先记成一条线</h2>
+        <p>第一周不要求会跑模型，但要知道每一步在回答什么问题。</p>
+      </div>
+
+      <div class="workflow-motion" aria-label="PopPK 建模流程动画">
+        <div class="pulse-line"></div>
+        <article>
+          <span>1</span>
+          <strong>整理数据</strong>
+          <p>剂量、时间、浓度、协变量先对齐。</p>
+        </article>
+        <article>
+          <span>2</span>
+          <strong>基础模型</strong>
+          <p>先回答一室、二室、吸收过程是否合理。</p>
+        </article>
+        <article>
+          <span>3</span>
+          <strong>随机效应</strong>
+          <p>加入 IIV、IOV，解释个体和场合差异。</p>
+        </article>
+        <article>
+          <span>4</span>
+          <strong>协变量</strong>
+          <p>体重、肾功能、年龄是否解释参数变化。</p>
+        </article>
+        <article>
+          <span>5</span>
+          <strong>验证模拟</strong>
+          <p>用 GOF、VPC、模拟回答模型是否可靠。</p>
+        </article>
+      </div>
+
+      <div class="case-summary">
+        <span class="case-badge">病例练习</span>
+        <h3>肾功能下降患者的抗菌药给药方案</h3>
+        <p>
+          65 岁患者，体重 58 kg，肌酐清除率约 35 mL/min。常规剂量给药后，谷浓度偏高。
+          现在要判断：这个 PopPK 模型是否足够可靠，可以用来支持个体化减量？
+        </p>
+      </div>
+
+      <div class="diagnostic-strip case-strip">
+        <article class="diagnostic-card case-card">
+          <span class="case-step">Step 1 / GOF</span>
+          <h3>先看模型有没有系统偏差</h3>
+          <p>把该患者和同类患者的观测浓度放到 DV vs IPRED 图上。若点围绕 y = x 随机散布，说明个体预测没有明显高估或低估。</p>
+          <div class="mini-plot gof" aria-hidden="true">
+            <span class="axis x"></span>
+            <span class="axis y"></span>
+            <span class="identity"></span>
+            <i style="--x:18%;--y:72%"></i>
+            <i style="--x:30%;--y:60%"></i>
+            <i style="--x:42%;--y:53%"></i>
+            <i style="--x:55%;--y:41%"></i>
+            <i style="--x:68%;--y:33%"></i>
+            <i style="--x:80%;--y:22%"></i>
+          </div>
+          <small>本例判断：点大致贴近参考线，没有明显系统偏差，模型进入下一步检查。</small>
+        </article>
+        <article class="diagnostic-card case-card">
+          <span class="case-step">Step 2 / VPC</span>
+          <h3>再看模型能否复现低肾功能人群</h3>
+          <p>按相同采样时间模拟 1000 组低肾功能患者，比较真实浓度是否落在 90% 预测区间内。</p>
+          <div class="mini-plot vpc" aria-hidden="true">
+            <span class="band hi"></span>
+            <span class="band mid"></span>
+            <span class="median"></span>
+            <i style="--x:14%;--y:62%"></i>
+            <i style="--x:26%;--y:44%"></i>
+            <i style="--x:38%;--y:35%"></i>
+            <i style="--x:52%;--y:39%"></i>
+            <i style="--x:66%;--y:53%"></i>
+            <i style="--x:82%;--y:68%"></i>
+          </div>
+          <small>本例判断：多数真实点位于预测区间内，说明模型对这个亚组的变异描述尚可。</small>
+        </article>
+        <article class="diagnostic-card case-card">
+          <span class="case-step">Step 3 / 剂量模拟</span>
+          <h3>最后比较两种给药方案</h3>
+          <p>用模型模拟常规剂量和减量方案的暴露分布。若减量后仍能达标且超暴露风险下降，才支持调整方案。</p>
+          <div class="mini-plot sim" aria-hidden="true">
+            <span class="target"></span>
+            <i style="--h:34%;--d:0s"></i>
+            <i style="--h:48%;--d:.2s"></i>
+            <i style="--h:64%;--d:.4s"></i>
+            <i style="--h:72%;--d:.6s"></i>
+            <i style="--h:58%;--d:.8s"></i>
+            <i style="--h:42%;--d:1s"></i>
+          </div>
+          <small>本例结论：模型检查通过后，模拟支持减量；但仍需结合疗效、安全性和复测浓度。</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="content-band compact" id="deliverables">
+      <div class="section-heading">
+        <p class="eyebrow">Output package</p>
+        <h2>第一周交付物模板</h2>
+      </div>
+      <div class="deliverable-grid">
+        <article>
+          <h3>1. 建模流程图</h3>
+          <p>用 5 个方框画出：数据整理、基础模型、随机效应、协变量、验证模拟。每个方框只写一句“它回答什么问题”。</p>
+        </article>
+        <article>
+          <h3>2. 核心术语表</h3>
+          <p>至少包含 CL、V、Ka、THETA、ETA、EPS、IIV、IOV、PRED、IPRED、OFV、VPC。每个术语写一句白话解释。</p>
+        </article>
+        <article>
+          <h3>3. 迷你案例复盘</h3>
+          <p>假设同剂量下 A 患者浓度偏低，写出三种可能解释：清除率高、分布容积大、采样或测定误差。</p>
+        </article>
+        <article>
+          <h3>4. 问题清单</h3>
+          <p>保留 3 个问题进入第二周，例如：哪些数据能区分 CL 和 V？稀疏采样够不够？什么时候需要固定参数？</p>
+        </article>
+      </div>
+
+      <div class="mistake-board">
+        <h3>第一周常见误区</h3>
+        <div>
+          <p><strong>误区 A：</strong>把 ETA 当成测量误差。ETA 是个体差异，EPS 才是观测噪声。</p>
+          <p><strong>误区 B：</strong>看到平均曲线拟合好就认为模型可靠。群体分布和极端个体也要被解释。</p>
+          <p><strong>误区 C：</strong>过早纠结软件语法。第一周先学会说清楚模型在回答什么问题。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-band compact" id="quiz">
+      <div class="section-heading">
+        <p class="eyebrow">Week 1 checkpoint</p>
+        <h2>第一周小测</h2>
+      </div>
+      <div class="quiz-grid">
+        <article class="quiz-card" data-answer="eta">
+          <h3>一个患者的 CL 明显高于群体典型值，最直接由哪一层描述？</h3>
+          <button data-choice="theta">THETA</button>
+          <button data-choice="eta">ETA</button>
+          <button data-choice="eps">EPS</button>
+          <p class="feedback"></p>
+        </article>
+        <article class="quiz-card" data-answer="eps">
+          <h3>同一模型下，观测点围绕个体预测曲线上下波动，主要对应什么？</h3>
+          <button data-choice="theta">固定效应</button>
+          <button data-choice="eta">个体差异</button>
+          <button data-choice="eps">残差误差</button>
+          <p class="feedback"></p>
+        </article>
+        <article class="quiz-card" data-answer="vpc">
+          <h3>想判断模型能否复现真实数据分布，优先看什么图？</h3>
+          <button data-choice="gof">GOF</button>
+          <button data-choice="vpc">VPC</button>
+          <button data-choice="ofv">OFV</button>
+          <p class="feedback"></p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-footer">
+    <span>建议产出：一页 PopPK 建模流程图，一张核心术语表，三个尚未解决的问题。</span>
+  </footer>
+
+  <script src="assets/week1.js"></script>
+</body>
+</html>
